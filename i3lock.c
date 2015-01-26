@@ -8,6 +8,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <pwd.h>
 #include <sys/types.h>
 #include <string.h>
@@ -45,6 +46,8 @@
 typedef void (*ev_callback_t)(EV_P_ ev_timer *w, int revents);
 
 /* We need this for libxkbfile */
+char  command[120];
+char  current_time[100];
 char color[7] = "ffffff";
 int inactivity_timeout = 30;
 uint32_t last_resolution[2];
@@ -237,7 +240,19 @@ static void input_done(void) {
          * on release of the 'enter' key. */
         turn_monitors_on();
         exit(0);
+    }else{
+    
+        time_t now;
+        time(&now);
+        struct tm *t = localtime(&now);
+        strftime(current_time, sizeof(current_time)-1, "~/failed_login_%d_%m_%Y_%H:%M",t);
+        strcpy(command,"fswebcam -r 640x480 --jpeg 85 -D 0 -s brightness=50%  ");
+        strcat(command,current_time);
+        strcat(command,".jpg&");
+        system(command);
+    
     }
+
 
     if (debug_mode)
         fprintf(stderr, "Authentication failure\n");
